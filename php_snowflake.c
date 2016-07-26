@@ -41,7 +41,7 @@ typedef struct IdWorker id_worker;
 // IdWorker Struct
 struct IdWorker {
 	zend_long worker_id;
-	zend_long service_num;
+	zend_long service_no;
 	zend_long last_time_stamp;
 	unsigned int sequence;
 };
@@ -88,19 +88,19 @@ static void next_id(id_worker *iw, char *id) {
 	if (ts < (iw->last_time_stamp)) {
 		strcpy(id, NULL);
 	} else {
-		sprintf(id, "00%ld%05ld%08ld%04d", ts, iw->service_num, iw->worker_id, iw->sequence);
+		sprintf(id, "%ld%05ld%010ld%04d", ts, iw->service_no, iw->worker_id, iw->sequence);
 	}
 }
 
 PHP_METHOD(PhpSnowFlake, nextId) {
 	char id[33];
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS(), "l", &(iw->service_num)) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "l", &(iw->service_no)) == FAILURE) {
 		RETURN_FALSE;
 	}
 
-	if ((iw->service_num)>99999 | (iw->service_num)<0) {
-		zend_error(E_ERROR, "service_num in the range of 0,99999");
+	if ((iw->service_no)>99999 | (iw->service_no)<0) {
+		zend_error(E_ERROR, "service_no in the range of 0,99999");
 	}
 
 	next_id(iw, id);
@@ -121,7 +121,7 @@ PHP_METHOD(PhpSnowFlake, nextId) {
 /* {{{ ARG_INFO
  */
 ZEND_BEGIN_ARG_INFO_EX(php_snowflake_next_id, 0, 0, 1)
-	ZEND_ARG_INFO(0, service_num)
+	ZEND_ARG_INFO(0, service_no)
 ZEND_END_ARG_INFO()
 /* }}} */
 
