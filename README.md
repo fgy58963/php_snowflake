@@ -9,7 +9,7 @@
 
 ### ZTS
 ```
-0 2　　　　　　    15　　　　　　20　 28　　　   32
+0 2　　　　　　    15　　　　　　20　  28　　　    32
 --+----------------+--------------+----+----------+
  00|timestamp(ms)  | service_num| pid | sequence     |
 --+----------------+--------------+----+----------+
@@ -17,7 +17,7 @@
 
 ### NTS
 ```
-0 2　　　　　　    15　　　　　　20　 28　　　   32
+0 2　　　　　　    15　　　　　　20　  28　　　    32
 --+----------------+--------------+----+----------+
  00|timestamp(ms)  | service_num| tid | sequence     |
 --+----------------+--------------+----+----------+
@@ -25,7 +25,7 @@
 
 ## Installation
 ```
-./configure --with-php-config=/you/path
+./configure --with-php-config=/you/phppath/php-config
 make
 make install
 ```
