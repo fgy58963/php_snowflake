@@ -55,6 +55,6 @@ for ($i=0; $i < 10; $i++) {
 */
 ```
 ## License
-Copyright (c) 2016 by [Towers](http://zheng-ji.info) released under MIT License.
+Copyright (c) 2016 by [Towers](http://towers.pub) released under MIT License.
 
 
