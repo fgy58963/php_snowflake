@@ -28,11 +28,12 @@
 #include <string.h>
 #include <sys/time.h>
 #include <stdio.h>
- #include <pthread.h>
+#include <sys/syscall.h>
 #include "php.h"
 #include "php_ini.h"
 #include "ext/standard/info.h"
 #include "php_snowflake.h"
+
 
 typedef struct IdWorker id_worker;
 
@@ -65,6 +66,10 @@ static zend_long time_re_gen(zend_long last) {
 	return new_time;
 }
 
+static zend_long gettid() {
+	return syscall(SYS_gettid); 
+}
+
 static zend_long time_gen() {
 	struct timeval tv;
 	gettimeofday(&tv, 0);
@@ -88,7 +93,7 @@ static void next_id(id_worker *iw, char *id) {
 	if (ts < (iw->last_time_stamp)) {
 		strcpy(id, NULL);
 	} else {
-		sprintf(id, "%ld%05ld%010ld%04d", ts, iw->service_no, iw->worker_id, iw->sequence);
+		sprintf(id, "00%ld%05ld%08ld%04d", ts, iw->service_no, iw->worker_id, iw->sequence);
 	}
 }
 
@@ -184,7 +189,7 @@ PHP_RINIT_FUNCTION(php_snowflake)
 #ifndef ZTS
 		iw->worker_id = (zend_long) getpid();
 #else
-		iw->worker_id = pthread_self();
+		iw->worker_id = gettid();
 #endif
 	}
 #if defined(COMPILE_DL_PHP_SNOWFLAKE) && defined(ZTS)
