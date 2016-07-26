@@ -1,13 +1,12 @@
 # php_snowflake
 
----
 
 ## What is php_snowflake?
----
+
 [Twitter SnowFlake](https://github.com/twitter/snowflake) PHP version of the algorithm
 
 ## Description
----
+
 ### ZTS
 0 2　　　　　　15　　　　　　20　 28　　　　32
 --+----------------+--------------+----+----------+
@@ -21,14 +20,12 @@
 --+----------------+--------------+----+----------+
 
 ## Installation
----
 ```
 ./configure --with-php-config=/you/path
 make
 make install
 ```
 ## Example
----
 ```
 $service_num = 999;
 for ($i=0; $i < 10; $i++) { 
