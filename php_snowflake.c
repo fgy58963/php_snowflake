@@ -88,7 +88,7 @@ static void next_id(id_worker *iw, char *id) {
 	if (ts < (iw->last_time_stamp)) {
 		strcpy(id, NULL);
 	} else {
-		sprintf(id, "0%ld%05ld%08ld%04d", ts, iw->service_num, iw->worker_id, iw->sequence);
+		sprintf(id, "00%ld%05ld%08ld%04d", ts, iw->service_num, iw->worker_id, iw->sequence);
 	}
 }
 
