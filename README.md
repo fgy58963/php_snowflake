@@ -25,6 +25,7 @@
 
 ## Installation
 ```
+phpize
 ./configure --with-php-config=/you/phppath/php-config
 make
 make install
