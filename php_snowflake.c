@@ -66,7 +66,7 @@ static zend_long time_re_gen(zend_long last) {
 	return new_time;
 }
 
-static zend_long gettid() {
+static zend_long getworkid() {
 	return syscall(SYS_gettid); 
 }
 
@@ -107,6 +107,8 @@ PHP_METHOD(PhpSnowFlake, nextId) {
 	if ((iw->service_no)>99999 | (iw->service_no)<0) {
 		zend_error(E_ERROR, "service_no in the range of 0,99999");
 	}
+
+	iw->worker_id = getworkid();
 
 	next_id(iw, id);
 	if (id == NULL) {
@@ -156,6 +158,9 @@ const zend_function_entry php_snowflake_methods[] = {
  */
 PHP_MINIT_FUNCTION(php_snowflake)
 {
+	iw = emalloc(sizeof(id_worker));
+	iw->sequence = 0;
+
 	zend_class_entry ce;
 	INIT_CLASS_ENTRY(ce, "PhpSnowFlake", php_snowflake_methods);
 	php_snowflake_ce = zend_register_internal_class_ex(&ce, NULL);
@@ -170,6 +175,7 @@ PHP_MINIT_FUNCTION(php_snowflake)
  */
 PHP_MSHUTDOWN_FUNCTION(php_snowflake)
 {
+	efree(iw);
 	/* uncomment this line if you have INI entries
 	UNREGISTER_INI_ENTRIES();
 	*/
@@ -182,16 +188,6 @@ PHP_MSHUTDOWN_FUNCTION(php_snowflake)
  */
 PHP_RINIT_FUNCTION(php_snowflake)
 {
-	if (iw == NULL) {
-		iw = emalloc(sizeof(id_worker));
-		iw->sequence = 0;
-		iw->last_time_stamp = time_gen();
-#ifndef ZTS
-		iw->worker_id = gettid();
-#else
-		iw->worker_id = (zend_long) getpid();
-#endif
-	}
 #if defined(COMPILE_DL_PHP_SNOWFLAKE) && defined(ZTS)
 	ZEND_TSRMLS_CACHE_UPDATE();
 #endif
@@ -204,8 +200,6 @@ PHP_RINIT_FUNCTION(php_snowflake)
  */
 PHP_RSHUTDOWN_FUNCTION(php_snowflake)
 {
-	efree(iw);
-	iw = NULL;
 	return SUCCESS;
 }
 /* }}} */
