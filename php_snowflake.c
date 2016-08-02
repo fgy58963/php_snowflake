@@ -187,9 +187,9 @@ PHP_RINIT_FUNCTION(php_snowflake)
 		iw->sequence = 0;
 		iw->last_time_stamp = time_gen();
 #ifndef ZTS
-		iw->worker_id = (zend_long) getpid();
-#else
 		iw->worker_id = gettid();
+#else
+		iw->worker_id = (zend_long) getpid();
 #endif
 	}
 #if defined(COMPILE_DL_PHP_SNOWFLAKE) && defined(ZTS)
