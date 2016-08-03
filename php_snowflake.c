@@ -22,7 +22,7 @@
 #include "config.h"
 #endif
 
-#define MAX_SEQUENCE 9999
+#define MAX_SEQUENCE 8191
 
 #include <unistd.h>
 #include <string.h>
@@ -61,7 +61,7 @@ static zend_long time_re_gen(zend_long last) {
 	do {
 		gettimeofday(&tv, 0);
 		new_time = (zend_long)tv.tv_sec * 1000 + (zend_long)tv.tv_usec / 1000;
-	} while (new_time < last);
+	} while (new_time <= last);
 
 	return new_time;
 }
@@ -104,7 +104,7 @@ PHP_METHOD(PhpSnowFlake, nextId) {
 		RETURN_FALSE;
 	}
 
-	if ((iw->service_no)>99999 | (iw->service_no)<0) {
+	if ((iw->service_no)>8191 | (iw->service_no)<0) {
 		zend_error(E_ERROR, "service_no in the range of 0,99999");
 	}
 
