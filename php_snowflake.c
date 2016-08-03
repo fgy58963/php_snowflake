@@ -105,7 +105,7 @@ PHP_METHOD(PhpSnowFlake, nextId) {
 	}
 
 	if ((iw->service_no)>8191 | (iw->service_no)<0) {
-		zend_error(E_ERROR, "service_no in the range of 0,99999");
+		zend_error(E_ERROR, "service_no in the range of 0,8191");
 	}
 
 	iw->worker_id = getworkid();
