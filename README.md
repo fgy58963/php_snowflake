@@ -6,7 +6,7 @@
 [Twitter SnowFlake](https://github.com/twitter/snowflake) PHP version of the algorithm
 
 ## Requires
-PHP >= 7.0
+PHP >= 5.6  (5.5 the following self-testing)
 
 ## Description
 

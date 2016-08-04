@@ -1,6 +1,6 @@
 /*
   +----------------------------------------------------------------------+
-  | PHP Version 7                                                        |
+  | php_snowflake  https://github.com/Sxdd/php_snowflake   |
   +----------------------------------------------------------------------+
   | Copyright (c) 1997-2016 The PHP Group                                |
   +----------------------------------------------------------------------+
@@ -34,21 +34,7 @@
 #include "ext/standard/info.h"
 #include "php_snowflake.h"
 
-
-typedef struct IdWorker id_worker;
-
-// static pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
-
-// IdWorker Struct
-struct IdWorker {
-	zend_long worker_id;
-	zend_long service_no;
-	zend_long last_time_stamp;
-	unsigned int sequence;
-};
-
 static id_worker *iw;
-
 
 /* If you declare any globals in php_snowflake.h uncomment this:
 ZEND_DECLARE_MODULE_GLOBALS(php_snowflake)
@@ -80,6 +66,7 @@ static void next_id(id_worker *iw, char *id) {
 	zend_long ts;
 
 	ts = time_gen();
+
 	if (ts == (iw->last_time_stamp)) {
 		iw->sequence = (iw->sequence+1) & MAX_SEQUENCE;
 		if (iw->sequence == 0) {
@@ -100,7 +87,11 @@ static void next_id(id_worker *iw, char *id) {
 PHP_METHOD(PhpSnowFlake, nextId) {
 	char id[33];
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS(), "l", &(iw->service_no)) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS() 
+#if PHP_API_VERSION < 20151012
+		TSRMLS_CC
+#endif
+		, "l", &(iw->service_no)) == FAILURE) {
 		RETURN_FALSE;
 	}
 
@@ -111,10 +102,15 @@ PHP_METHOD(PhpSnowFlake, nextId) {
 	iw->worker_id = getworkid();
 
 	next_id(iw, id);
+
 	if (id == NULL) {
 		RETURN_FALSE;
 	} else {
+#if PHP_API_VERSION < 20151012
+		RETURN_STRINGL(id,strlen(id), 1);
+#else
 		RETURN_STRINGL(id,strlen(id));
+#endif
 	}
 }
 
@@ -150,8 +146,16 @@ static void php_php_snowflake_init_globals(zend_php_snowflake_globals *php_snowf
  */
 const zend_function_entry php_snowflake_methods[] = {
 	PHP_ME(PhpSnowFlake, nextId, php_snowflake_next_id, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
-	{NULL, NULL, NULL}
+	PHP_FE_END
 };
+
+#if PHP_API_VERSION < 20151012
+zend_function_entry php_snowflake_functions[] = {
+	PHP_FE_END
+};
+#else
+#define php_snowflake_functions NULL
+#endif
 /* }}} */
 
 /* {{{ PHP_MINIT_FUNCTION
@@ -163,7 +167,11 @@ PHP_MINIT_FUNCTION(php_snowflake)
 
 	zend_class_entry ce;
 	INIT_CLASS_ENTRY(ce, "PhpSnowFlake", php_snowflake_methods);
+#if PHP_API_VERSION < 20151012
+	php_snowflake_ce = zend_register_internal_class(&ce TSRMLS_CC);
+#else
 	php_snowflake_ce = zend_register_internal_class_ex(&ce, NULL);
+#endif
 	/* If you have INI entries, uncomment these lines
 	REGISTER_INI_ENTRIES();
 	*/
@@ -188,7 +196,7 @@ PHP_MSHUTDOWN_FUNCTION(php_snowflake)
  */
 PHP_RINIT_FUNCTION(php_snowflake)
 {
-#if defined(COMPILE_DL_PHP_SNOWFLAKE) && defined(ZTS)
+#if defined(COMPILE_DL_PHP_SNOWFLAKE) && defined(ZTS) && PHP_API_VERSION >= 20151012
 	ZEND_TSRMLS_CACHE_UPDATE();
 #endif
 	return SUCCESS;
@@ -224,7 +232,7 @@ PHP_MINFO_FUNCTION(php_snowflake)
 zend_module_entry php_snowflake_module_entry = {
 	STANDARD_MODULE_HEADER,
 	"php_snowflake",
-	NULL,
+	php_snowflake_functions,
 	PHP_MINIT(php_snowflake),
 	PHP_MSHUTDOWN(php_snowflake),
 	PHP_RINIT(php_snowflake),		/* Replace with NULL if there's nothing to do at request start */
@@ -236,7 +244,7 @@ zend_module_entry php_snowflake_module_entry = {
 /* }}} */
 
 #ifdef COMPILE_DL_PHP_SNOWFLAKE
-#ifdef ZTS
+#if defined(ZTS) && PHP_API_VERSION >= 20151012
 ZEND_TSRMLS_CACHE_DEFINE()
 #endif
 ZEND_GET_MODULE(php_snowflake)

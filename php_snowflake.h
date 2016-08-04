@@ -1,6 +1,6 @@
 /*
   +----------------------------------------------------------------------+
-  | PHP Version 7                                                        |
+  |  php_snowflake  https://github.com/Sxdd/php_snowflake  |
   +----------------------------------------------------------------------+
   | Copyright (c) 1997-2016 The PHP Group                                |
   +----------------------------------------------------------------------+
@@ -57,6 +57,16 @@ ZEND_END_MODULE_GLOBALS(php_snowflake)
 #if defined(ZTS) && defined(COMPILE_DL_PHP_SNOWFLAKE)
 ZEND_TSRMLS_CACHE_EXTERN()
 #endif
+
+typedef struct IdWorker id_worker;
+
+// IdWorker Struct
+struct IdWorker {
+  zend_long worker_id;
+  zend_long service_no;
+  zend_long last_time_stamp;
+  unsigned int sequence;
+};
 
 #endif	/* PHP_PHP_SNOWFLAKE_H */
 
